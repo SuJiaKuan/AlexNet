@@ -1,0 +1,5 @@
+TensorBoard*
+*.pyc
+training_data*
+first.py
+bvlc_alexnet.npy
