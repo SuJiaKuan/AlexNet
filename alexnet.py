@@ -82,7 +82,7 @@ class AlexNet(object):
         - weights_path: path string, path to the pretrained weights,
                             (if bvlc_alexnet.npy is not in the same folder)
         """
-        self.x_ph = tf.reshape(image_ph, [-1, 256, 256, 3])
+        self.x_ph = image_ph
         self.keep_prob = keep_prob
         self.num_classes = num_classes
         self.skip_layer = skip_layer
@@ -151,4 +151,7 @@ class AlexNet(object):
         # 8th Layer: FC and return unscaled activations
         # (for tf.nn.softmax_cross_entropy_with_logits)
         self.fc8 = fcNN(dropout7, 4096, self.num_classes, relu=False, name='fc8')
+
+
+
 

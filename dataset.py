@@ -23,7 +23,7 @@ class DataSet(object):
     def _gen_train_file_list(self):
         train_classes = os.listdir(self._train_dir)
         train_list_x = np.array([])
-        train_list_y = np.empty((0, 5), dtype=int)
+        train_list_y = np.empty((0, 7), dtype=int)
         num_classes = len(train_classes)
         label_WNID_map = []
         for idx, train_class in enumerate(train_classes):
