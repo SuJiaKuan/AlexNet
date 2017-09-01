@@ -5,6 +5,7 @@ from alexnet import AlexNet
 import numpy as np
 import cv2
 import time
+import datetime
 import os
 from tensorflow.python.client import timeline
 
@@ -18,6 +19,12 @@ PROCESS_NUM = 1
 
 worker = None
 exp_name = 'native'
+
+# Make results directory
+now = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+results_dir = "results/{}".format(now)
+if not os.path.exists(results_dir):
+    os.makedirs(results_dir)
 
 # dataset initialize
 dataset = DataSet("./training_data")
@@ -59,7 +66,7 @@ with tf.Session(worker) as sess:
           inference_time = int(round((end_time - start_time) * 1000))
           print("Finish inferring... process={}  batch_size={} iter={} time_consume={}ms".format(proc_id, batch_size, i, inference_time))
 
-          with open("result_{}_{}-{}.txt".format(exp_name, PROCESS_NUM, proc_id), "a") as out:
+          with open("{}/result_{}_{}-{}.txt".format(results_dir, exp_name, PROCESS_NUM, proc_id), "a") as out:
               if i == 0:
                   out.write("batch_size={}\t".format(batch_size))
               out.write("{}\t".format(inference_time))

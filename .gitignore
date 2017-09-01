@@ -118,3 +118,6 @@ Session.vim
 *~
 # Auto-generated tag files
 tags
+
+# The results directory
+results
