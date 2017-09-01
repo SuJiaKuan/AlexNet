@@ -16,15 +16,22 @@ train_layers = []
 MAX_BATCH_SIZE = 128
 ITER_NUM = 30
 PROCESS_NUM = 1
+TRACE = True
 
 worker = None
 exp_name = 'native'
 
-# Make results directory
 now = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+# Make results directory
 results_dir = "results/{}".format(now)
 if not os.path.exists(results_dir):
     os.makedirs(results_dir)
+
+# Make traces directory
+if TRACE:
+    traces_dir = "traces/{}".format(now)
+    if not os.path.exists(traces_dir):
+        os.makedirs(traces_dir)
 
 # dataset initialize
 dataset = DataSet("./training_data")
@@ -60,7 +67,12 @@ with tf.Session(worker) as sess:
           print("Start inferring... process={} batch_size={} iter={}".format(proc_id, batch_size, i))
           start_time = time.time()
 
-          result = sess.run([score], feed_dict={image_ph: batch[0]})
+          if TRACE:
+              run_metadata = tf.RunMetadata()
+              run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+              result = sess.run([score], feed_dict={image_ph: batch[0]}, options=run_options, run_metadata=run_metadata)
+          else:
+              result = sess.run([score], feed_dict={image_ph: batch[0]})
 
           end_time = time.time()
           inference_time = int(round((end_time - start_time) * 1000))
@@ -72,5 +84,11 @@ with tf.Session(worker) as sess:
               out.write("{}\t".format(inference_time))
               if i == (ITER_NUM - 1):
                   out.write("\n")
+
+          if TRACE:
+              tl = timeline.Timeline(run_metadata.step_stats)
+              ctf = tl.generate_chrome_trace_format()
+              with open("{}/result_{}_{}-{}-{}.json".format(traces_dir, exp_name, PROCESS_NUM, proc_id, i), "w") as out:
+                  out.write(str(ctf))
 
       batch_size *= 2
